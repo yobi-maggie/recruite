@@ -37,8 +37,8 @@ npm start
 #### 评论列表数据结构
 
 <img src="https://github.com/heyLiup/node-lagou/blob/master/images/answer.png"/> 
-#### 职位信息数据结构
 
+#### 职位信息数据结构
 <img src="https://github.com/heyLiup/node-lagou/blob/master/images/job.png"/>
 
 #### 讨论话题数据结构
@@ -62,10 +62,10 @@ npm start
 │   ├── webModels.js                职位
 │   ├── webQuestionModel.js         问题
 │   ├── webQuestionModelList.js     问题列表
-├── routes                         路由
+├── routes                        路由
 │   ├── data.js                     数据模块
 │   └── users.js                    用户模块
-├── splider                      处理中心，负责路由及数据库的具体操作
+├── splider                       处理中心，负责路由及数据库的具体操作
 │   ├── webChart.js                 爬取职位信息
 │   ├── allAnswer.js                爬取评论信息
 │   ├── sortList.js                 爬取分类信息
