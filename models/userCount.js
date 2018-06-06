@@ -7,6 +7,12 @@ var Schema=mongoose.Schema
 var UserCount = new Schema({
     userName:{type:String,require:true},
     password:{type:String,require:true},
+    userType: {type: String, require: true},
+    contact: {type: String},
+    collectionPosition: {type: Array},
+    deliver: {type: Array},
 })
+
+// console.log(UserCount)
 
 module.exports=mongoose.model('UserCount',UserCount)
