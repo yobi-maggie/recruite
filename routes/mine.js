@@ -11,7 +11,6 @@ let isLogin = (req,res,next) =>{
     next();
 }
 Router.use('/resume',isLogin,(req,res,next)=>{
-    console.log(req.query);
     resumeModel.find(req.query,(err,doc)=>{
         if(err) return;
         return res.send({data:doc})
@@ -19,7 +18,6 @@ Router.use('/resume',isLogin,(req,res,next)=>{
 })
 Router.post('/addResume', async (req, res, next) => {
     let {userName, department, name, experience, city,birthDate, education, phone, email, skills, evaluation, jobExpectation,workExperience, entryTime,projectExperience } = req.body;
-    console.log('add', req.body)
     resumeModel.find({
         userName
     }, (err, doc) => {
@@ -43,7 +41,6 @@ Router.post('/addResume', async (req, res, next) => {
                 entryTime,
                 projectExperience: JSON.parse(projectExperience),
             }
-            console.log(resumeObj)
             let resume = new resumeModel(resumeObj);
             resume.save();
             return res.send({status:200,msg:"添加成功"})

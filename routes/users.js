@@ -10,13 +10,7 @@ var userCount = require('../models/userCount')
 router.get('/', async (req, res, next) => {
 	let doc = await userCount.find({});
 	let data = doc.map((item) => {
-		return {
-			userName: item.userName,
-			userType: item.userType,
-			contact: item.contact,
-			collectionPosition: item.collectionPosition,
-			deliver: item.deliver,
-		}
+		return item;
 	})
 	return res.send({data});
 })
@@ -25,7 +19,7 @@ router.post('/login', async (req, res, next)=>{
 	try{
 		let doc = await userCount.find({userName:userName});
 		if(doc.length!==0){
-			if(md5(password)==doc[0].password){
+			if(md5(password)==doc[0].password && !doc[0].isDisable){
 				res.cookie('userid',doc[0]._id, { maxAge: 900000, httpOnly: false});
 				return res.send({status:200,msg:"登陆成功",data:{
 					collectionPosition:doc[0].collectionPosition,
@@ -35,6 +29,8 @@ router.post('/login', async (req, res, next)=>{
 					userType: doc[0].userType,
 					_id: doc[0]._id,
 				}})
+			}else if (doc[0].isDisable) {
+				return res.send({status:500,msg:"该账户已冻结"})
 			}else{
 				return res.send({status:500,msg:"密码错误"})
 			}
@@ -51,12 +47,28 @@ router.use('/signout', async (req, res, next)=>{
 	return res.send({status:200,msg:"退出成功"})
 
 });
+router.use('/get', async(req, res, next) => {
+	console.log(req.body)
+	// userCount.find({_id: userDetail._id})
+})
+router.post('/change', async(req, res, next) => {
+	const userDetail = JSON.parse(req.body.userDetail);
+	userCount.update({_id: userDetail._id}, userDetail, function (err, result) {
+		if (err) return ;
+		return res.send({status: 200, msg: "更新成功"})
+	})
 
-
-
+})
+router.post('/deliver', async(req, res, next) => {
+	const userDetail = JSON.parse(req.body.userDetail);
+	userCount.update({_id: userDetail._id}, userDetail, async (err, result) =>{
+		if (err) return ;
+		const doc = await userCount.find({_id: userDetail._id});
+		return res.send({status: 200, msg: "更新成功", data: doc})
+	})
+})
 router.post('/regist', async (req, res, next)=>{
 	let {userName,password,repassword, userType, contact} = req.body;
-	console.log(userName,password,repassword, userType, contact);
 	let doc = await userCount.find({userName});
 	if(doc.length !== 0){
 		return res.send({status:500,msg:"用户名已被注册"})

@@ -19,7 +19,6 @@ let companyModel=new Schema({
     "tags":{type:Array},
     "owner": {type: String},
     "time": { type: String, default: Date.now},
-    "position": {type: Array},
 })
 
 companyModel.pre('save',(next)=>{

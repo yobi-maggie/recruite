@@ -2,9 +2,9 @@ var express = require('express');
 var Router = express.Router();
 var webModels = require('../models/webPositionModelList')
 var companyModels = require('../models/companyModel')
+var deliverPosition = require("../models/deliverPositionModel")
 var mongoose = require('mongoose');
 let isLogin = (req,res,next) =>{
-    console.log(req.cookies);
     if(!req.cookies.userid){
         return res.send({statu:301,msg:"请登陆"})
     }
@@ -15,13 +15,24 @@ let isLogin = (req,res,next) =>{
 //   })
 // model.save();
 Router.use('/webJob',isLogin,(req,res,next)=>{
-    webModels.find({},(err,doc)=>{
+    const {city, keyword, owner} = req.query;
+    let query = {};
+    if (city && city != "全国") {
+        query.city = city;
+    }
+    if (keyword) {
+        query.name = {$regex: keyword, $options:"$i$g"}
+    }
+
+    if (owner) {
+        query.owner = owner;
+    }
+    webModels.find(query, (err,doc)=>{
         if(err) return;
         return res.send({data:doc})
     })
 })
 Router.use('/positionDetail',isLogin,(req,res,next)=>{
-    console.log('query', req.query);
     webModels.find(req.query,(err,doc)=>{
         if(err) return;
         return doc.length ? res.send({data:doc[0]}) : res.send({data: {
@@ -33,8 +44,7 @@ Router.use('/positionDetail',isLogin,(req,res,next)=>{
 var i = 0;
 Router.post('/position', async (req, res, next)=>{
     // let {userName,password,repassword} = req.body;
-    let {name, companyLogo, companyFullName, cities, salary, department, companyId } = req.body;
-	console.log(name, companyLogo, companyFullName, cities, salary, department );    
+    let {name, companyLogo, companyFullName, cities, salary, department, companyId } = req.body;  
 	if(name && companyLogo && companyFullName && cities && salary){
         
         let obj = {
@@ -43,7 +53,6 @@ Router.post('/position', async (req, res, next)=>{
             positionDesc: JSON.parse(req.body.positionDesc),
             positionId: i++,
         }
-        // console.log('obj', obj)
         if (!companyId) {
             return res.send({status: 300, msg: "未找到对应公司ID"});
         }
@@ -92,18 +101,49 @@ Router.post('/company', async (req, res, next) => {
     })
 })
 Router.delete('/position_delete', async(req, res, next) => {
-    console.log(res, req);
+
+    webModels.remove({positionId: req.body.positionId}, (err, doc) => {
+        if (err) return ;
+        return res.send({data: '', status: 200});
+
+    })
 })
+
 Router.use('/companyDetail',isLogin,(req,res,next)=>{
-    console.log('query', req.query);
     companyModels.find(req.query,(err,doc)=>{
         if(err) return;
-        console.log('doc..', doc);
+        if (!doc.length) {
+           return res.send({
+                data: {
+                    status: 404,
+                    msg: "未找到符合条件的数据"
+                }
+            })
+        }
+        webModels.find({
+            companyId: doc[0].companyId,
+        }, (Modelerr, modelDoc) => {
+            if (Modelerr) return;
+            var resultData = Object.assign(doc[0], {
+                position: modelDoc,
+            });
+            return doc.length ? res.send({
+                data: {
+                    companyDetail: resultData,
+                    position: modelDoc
+                }
+            }) : res.send({
+                data: {
+                    status: 404,
+                    msg: "未找到符合条件的数据"
+                }
+            })
+        })
 
-        return doc.length ? res.send({data:doc[0]}) : res.send({data: {
-            status: 404,
-            msg: '未找到符合条件的数据',
-        }});
+        // return doc.length ? res.send({data:doc[0]}) : res.send({data: {
+        //     status: 404,
+        //     msg: '',
+        // }});
     })
 })
 Router.use('/companyList', async (req, res, next) => {
@@ -118,12 +158,14 @@ Router.use('/companyList', async (req, res, next) => {
 
 Router.use('/starNum',async (req,res,next)=>{
     let {answerId ,answerNum}=JSON.parse(Object.keys(req.body)[0]);
-    // console.log(mongoose.mongo.ObjectId(answerId))
     let doc = await webQuestionModel.find({_id:mongoose.mongo.ObjectId(answerId)});
     res.header("Access-Control-Allow-Origin", "*");
     res.send({data:doc})
 })
 
-// console.log('Router::', Router);
+Router.post('/deliver', async(req, res, next) => {
+    const data = req.body;
+    // let isExist = await deliverPosition.find(req)
+})
 
 module.exports=Router;

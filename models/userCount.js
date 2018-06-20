@@ -11,6 +11,7 @@ var UserCount = new Schema({
     contact: {type: String},
     collectionPosition: {type: Array},
     deliver: {type: Array},
+    isDisable: {type: Boolean, default: false}
 })
 
 // console.log(UserCount)

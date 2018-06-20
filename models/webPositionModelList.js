@@ -29,6 +29,7 @@ let WebModel=new Schema({
     "tags":{type:Array},
     "time": { type: String, default: Date.now},
     "owner": {type: String},
+    "deliver": {type: Array},
 })
 WebModel.statics = {
     findCompanyByPositionId:function(positionId, callback){
