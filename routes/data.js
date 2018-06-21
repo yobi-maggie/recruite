@@ -165,12 +165,14 @@ Router.use('/starNum',async (req,res,next)=>{
 
 Router.post('/deliver', async(req, res, next) => {
     const data = req.body;
-    console.log(data);
-    const positionDetail = data.positionDetail ? JSON.parse(data.positionDetail): 
+    console.log('deliver====', data);
+    const positionDetail = data.positionDetail ? JSON.parse(data.positionDetail): {};
     // let isExist = await deliverPosition.find(req)
-    webModels.update({id: positionDetail.positionId}, positionDetail, function (err, result) {
+    // positionDetail.deliver = JSON.parse(positionDetail.deliver);
+    webModels.update({positionId: positionDetail.positionId}, positionDetail, async (err, result) => {
         if (err) return;
-        return res.send({status: 200, msg: '更新成功'})
+        const doc = await webModels.find({positionId: positionDetail.positionId});
+        return res.send({status: 200, msg: '更新成功', data: doc[0]})
     })
 })
 

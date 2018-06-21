@@ -48,7 +48,14 @@ router.use('/signout', async (req, res, next)=>{
 
 });
 router.use('/get', async(req, res, next) => {
-	console.log(req.body)
+	console.log(req.query);
+	const {userName} = req.query;
+	userCount.find({userName: userName}, (err, doc) => {
+		if (err) return;
+
+		return res.send({status: 200, msg: '成功', data: doc[0]})
+	})
+
 	// userCount.find({_id: userDetail._id})
 })
 router.post('/change', async(req, res, next) => {
@@ -60,8 +67,10 @@ router.post('/change', async(req, res, next) => {
 
 })
 router.post('/deliver', async(req, res, next) => {
-	const userDetail = JSON.parse(req.body.userDetail);
-	userCount.update({_id: userDetail._id}, userDetail, async (err, result) =>{
+	let userDetail = JSON.parse(req.body.userDetail);
+	// userDetail.deliver = JSON.parse(userDetail.deliver);
+	console.log(userDetail)
+	userCount.update({userName: userDetail.userName}, userDetail, async (err, result) =>{
 		if (err) return ;
 		const doc = await userCount.find({_id: userDetail._id});
 		return res.send({status: 200, msg: "更新成功", data: doc})
