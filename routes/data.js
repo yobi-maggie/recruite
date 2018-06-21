@@ -165,7 +165,13 @@ Router.use('/starNum',async (req,res,next)=>{
 
 Router.post('/deliver', async(req, res, next) => {
     const data = req.body;
+    console.log(data);
+    const positionDetail = data.positionDetail ? JSON.parse(data.positionDetail): 
     // let isExist = await deliverPosition.find(req)
+    webModels.update({id: positionDetail.positionId}, positionDetail, function (err, result) {
+        if (err) return;
+        return res.send({status: 200, msg: '更新成功'})
+    })
 })
 
 module.exports=Router;
